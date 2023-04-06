@@ -40,23 +40,57 @@ CHIP CPU {
 
     PARTS:
     // Put your code here:
-    ALU(x=, y=, 
-        zx=, nx=, zy=, ny=, f=, bo=,
-        out=, 
-        zr=, ng= );
+    // for instruction 
+    // instruction[15] -> 1 is C(Comp), 0 is A(Address) 
+    Not(in=instruction[15], out=IsA);
+    Not(in=IsA, out=IsC);
+
+
+    // 111 a ccccc ddd jjj
+    // 12 ->select Memory
+    And(a=IsC, b=instruction[12], out=Mux16ASel, out=isMem); 
+    // opcode ccccc
+    And(a=IsC, b=instruction[6], out=NegateOut);
+    And(a=IsC, b=instruction[7], out=AddOrAnd);
+    And(a=IsC, b=instruction[8], out=NegateYIn);
+    And(a=IsC, b=instruction[9], out=ZeroYIn);
+    And(a=IsC, b=instruction[10], out=NegateXIn);
+    And(a=IsC, b=instruction[11], out=ZeroXIn);
+
+    // dest ddd 
+    And(a=IsC, b=instruction[3], out=writeM); // write into RAM
+    And(a=IsC, b=instruction[4], out=LoadDR);
+    And(a=IsC, b=instruction[5], out=LoadAR);
+    
+    // jump jjj
+    And(a=IsC, b=instruction[0], out=);
+    And(a=IsC, b=instruction[1], out=);
+    And(a=IsC, b=instruction[2], out=);
+
+    // A -> address 
+    
+
+
+    ALU(x=DRegOut, y=Mux16BOut, 
+        zx=ZeroXIn, nx=NegateXIn, zy=ZeroYIn, ny=NegateYIn, f=AddOrAnd, no=NegateOut,
+        out=outM, out=ALUOutput,
+        zr=OutEQZero, ng=OutLTZero );
+
     // D Register
-    Register(in=ALUOutput, load=DLoad
+    Register(in=ALUOutput, load=LoadDR
               out=DRegOut );
     // A Register
-    Register(in=ALUOutput, load=ALoad
+    Register(in=Mux16AOut, load=LoadAR
               out=ARegOut, out=addressM);
+    
     // ALU input
-    Mux16(a=, b=, sel= 
-            out= );
-    //  M input
-    Mux16(a=, b=, sel= 
-            out= );
-    PC(in=ARegOut, load=PCLoad, inc=1, reset=reset 
-        out=, );
+    Mux16(a=ALUOutput, b=instruction, sel=Mux16ASel 
+            out=Mux16AOut );
+    // CMP input
+    Mux16(a=ARegOut, b=inM, sel=Mux16BSel 
+            out=Mux16BOut );
+    
+    PC(in=ARegOut, load=PCLoad, inc=true, reset=reset 
+        out=pc );
 
 }
