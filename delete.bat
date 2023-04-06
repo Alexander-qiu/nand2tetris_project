@@ -1,0 +1,1 @@
+Get-ChildItem -Path "F:\Computer_Construction\nand2tetris\nand2tetris" -Force -Recurse | Where-Object { $_.Attributes -like "*Hidden*" } | Remove-Item -Force

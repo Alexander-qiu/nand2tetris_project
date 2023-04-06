@@ -1,0 +1,36 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/02/Adder16.hdl
+
+/**
+ * Adds two 16-bit values.
+ * The most significant carry bit is ignored.
+ */
+
+CHIP Add16 {
+    IN a[16], b[16];
+    OUT out[16];
+
+    PARTS:
+   // Put you code here:
+    Mux16(a=x, b=false, sel=zx, out=l);
+    Not16(in=l, out=notl);
+    Mux16(a=l, b=notl, sel=nx, out=m);
+    Mux16(a=y, b=false, sel=zy, out=n);
+    Not16(in=n, out=notn);
+    Mux16(a=n, b=notn, sel=ny, out=o);
+    And16(a=m, b=o, out=p);
+    Add16(a=m, b=o, out=q);
+    Mux16(a=p, b=q, sel=f, out=r);
+    Not16(in=r, out=notr);
+    Mux16(a=r, b=notr, sel=no, out[15]=s, out[0..14]=t);
+    Mux16(a=r, b=notr, sel=no, out[0..7]=aa, out[8..15]=bb);
+    Or8Way(in=aa, out=xx);
+    Or8Way(in=bb, out=zz);
+    Or(a=xx, b=zz, out=yy);
+    Not(in=yy, out=zr);
+    Mux16(a=r, b=notr, sel=no, out=out);
+    Mux(a=false, b=true, sel=s, out=ng);
+
+}
